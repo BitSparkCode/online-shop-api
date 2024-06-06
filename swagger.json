@@ -1,0 +1,285 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "Online Shop API",
+      "description": "API Documentation for Online Shop"
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "tags": [
+      {
+        "name": "categories",
+        "description": "Operations about categories"
+      },
+      {
+        "name": "products",
+        "description": "Operations about products"
+      }
+    ],
+    "schemes": ["http"],
+    "paths": {
+      "/categories": {
+        "get": {
+          "tags": ["categories"],
+          "summary": "Get all categories",
+          "responses": {
+            "200": {
+              "description": "A list of categories",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Category"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["categories"],
+          "summary": "Create a new category",
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Category object",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Category"
+              }
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "Category created"
+            }
+          }
+        }
+      },
+      "/categories/{id}": {
+        "get": {
+          "tags": ["categories"],
+          "summary": "Get a category by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Category object",
+              "schema": {
+                "$ref": "#/definitions/Category"
+              }
+            },
+            "404": {
+              "description": "Category not found"
+            }
+          }
+        },
+        "put": {
+          "tags": ["categories"],
+          "summary": "Update a category",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Category object",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Category"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Category updated"
+            },
+            "404": {
+              "description": "Category not found"
+            }
+          }
+        },
+        "delete": {
+          "tags": ["categories"],
+          "summary": "Delete a category",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Category deleted"
+            },
+            "404": {
+              "description": "Category not found"
+            }
+          }
+        }
+      },
+      "/products": {
+        "get": {
+          "tags": ["products"],
+          "summary": "Get all products",
+          "responses": {
+            "200": {
+              "description": "A list of products",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Product"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["products"],
+          "summary": "Create a new product",
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Product object",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Product"
+              }
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "Product created"
+            }
+          }
+        }
+      },
+      "/products/{id}": {
+        "get": {
+          "tags": ["products"],
+          "summary": "Get a product by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Product object",
+              "schema": {
+                "$ref": "#/definitions/Product"
+              }
+            },
+            "404": {
+              "description": "Product not found"
+            }
+          }
+        },
+        "put": {
+          "tags": ["products"],
+          "summary": "Update a product",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Product object",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Product"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Product updated"
+            },
+            "404": {
+              "description": "Product not found"
+            }
+          }
+        },
+        "delete": {
+          "tags": ["products"],
+          "summary": "Delete a product",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Product deleted"
+            },
+            "404": {
+              "description": "Product not found"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Category": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Electronics"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "required": ["name", "price", "categoryId"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Laptop"
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "example": 999.99
+          },
+          "categoryId": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      }
+    }
+  }
+  
