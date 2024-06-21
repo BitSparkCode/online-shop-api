@@ -25,7 +25,7 @@
                   },
                   "role": {
                     "type": "string",
-                    "default": "admin"
+                    "default": "user"
                   }
                 },
                 "required": ["username", "password"]

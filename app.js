@@ -18,6 +18,9 @@ db.serialize(() => {
   db.run("CREATE TABLE categories (id INTEGER PRIMARY KEY, name TEXT)");
   db.run("CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, price REAL, categoryId INTEGER, FOREIGN KEY(categoryId) REFERENCES categories(id))");
   db.run("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)");
+  
+  const hashedAdminPassword = bcrypt.hashSync('admin', 10);
+  db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ['admin', hashedAdminPassword, 'admin']);
 });
 
 // Middleware zur Authentifizierung
@@ -34,7 +37,7 @@ function authenticateToken(req, res, next) {
 
 // Route zur Registrierung
 app.post('/register', (req, res) => {
-  const { username, password, role = 'admin' } = req.body;
+  const { username, password, role = 'user' } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10);
   db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", [username, hashedPassword, role], function (err) {
     if (err) {
