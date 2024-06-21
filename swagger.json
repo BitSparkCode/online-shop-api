@@ -24,10 +24,11 @@
                     "type": "string"
                   },
                   "role": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "admin"
                   }
                 },
-                "required": ["username", "password", "role"]
+                "required": ["username", "password"]
               }
             }
           }
@@ -83,6 +84,42 @@
           },
           "401": {
             "description": "Invalid credentials"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/reset-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Reset password",
+        "security": [{
+          "bearerAuth": []
+        }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "newPassword": {
+                    "type": "string"
+                  }
+                },
+                "required": ["username", "newPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully"
           },
           "500": {
             "description": "Server error"

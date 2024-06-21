@@ -34,7 +34,7 @@ function authenticateToken(req, res, next) {
 
 // Route zur Registrierung
 app.post('/register', (req, res) => {
-  const { username, password, role } = req.body;
+  const { username, password, role = 'admin' } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10);
   db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", [username, hashedPassword, role], function (err) {
     if (err) {
@@ -59,6 +59,19 @@ app.post('/login', (req, res) => {
     }
     const token = jwt.sign({ username: user.username, role: user.role }, secretKey);
     res.json({ token });
+  });
+});
+
+// Route zum Zurücksetzen des Passworts
+app.post('/reset-password', authenticateToken, (req, res) => {
+  const { username, newPassword } = req.body;
+  const hashedPassword = bcrypt.hashSync(newPassword, 10);
+  db.run("UPDATE users SET password = ? WHERE username = ?", [hashedPassword, username], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({ message: 'Password reset successfully' });
   });
 });
 
