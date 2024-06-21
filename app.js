@@ -35,6 +35,12 @@ function authenticateToken(req, res, next) {
   });
 }
 
+// Middleware zur Autorisierung
+function authorizeAdmin(req, res, next) {
+  if (req.user.role !== 'admin') return res.sendStatus(403);
+  next();
+}
+
 // Route zur Registrierung
 app.post('/register', (req, res) => {
   const { username, password, role = 'user' } = req.body;
@@ -81,7 +87,7 @@ app.post('/reset-password', authenticateToken, (req, res) => {
 // Swagger setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Routes for categories (protected)
+// Routes for categories (protected, read-only for users)
 app.get('/categories', authenticateToken, (req, res) => {
   db.all("SELECT * FROM categories", (err, rows) => {
     if (err) {
@@ -92,7 +98,7 @@ app.get('/categories', authenticateToken, (req, res) => {
   });
 });
 
-app.post('/categories', authenticateToken, (req, res) => {
+app.post('/categories', authenticateToken, authorizeAdmin, (req, res) => {
   const { name } = req.body;
   db.run("INSERT INTO categories (name) VALUES (?)", [name], function (err) {
     if (err) {
@@ -114,7 +120,7 @@ app.get('/categories/:id', authenticateToken, (req, res) => {
   });
 });
 
-app.put('/categories/:id', authenticateToken, (req, res) => {
+app.put('/categories/:id', authenticateToken, authorizeAdmin, (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
   db.run("UPDATE categories SET name = ? WHERE id = ?", [name, id], function (err) {
@@ -126,7 +132,7 @@ app.put('/categories/:id', authenticateToken, (req, res) => {
   });
 });
 
-app.delete('/categories/:id', authenticateToken, (req, res) => {
+app.delete('/categories/:id', authenticateToken, authorizeAdmin, (req, res) => {
   const { id } = req.params;
   db.run("DELETE FROM categories WHERE id = ?", [id], function (err) {
     if (err) {
@@ -137,7 +143,7 @@ app.delete('/categories/:id', authenticateToken, (req, res) => {
   });
 });
 
-// Routes for products (protected)
+// Routes for products (protected, read-only for users)
 app.get('/products', authenticateToken, (req, res) => {
   db.all("SELECT * FROM products", (err, rows) => {
     if (err) {
@@ -148,7 +154,7 @@ app.get('/products', authenticateToken, (req, res) => {
   });
 });
 
-app.post('/products', authenticateToken, (req, res) => {
+app.post('/products', authenticateToken, authorizeAdmin, (req, res) => {
   const { name, price, categoryId } = req.body;
   db.run("INSERT INTO products (name, price, categoryId) VALUES (?, ?, ?)", [name, price, categoryId], function (err) {
     if (err) {
@@ -170,7 +176,7 @@ app.get('/products/:id', authenticateToken, (req, res) => {
   });
 });
 
-app.put('/products/:id', authenticateToken, (req, res) => {
+app.put('/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
   const { id } = req.params;
   const { name, price, categoryId } = req.body;
   db.run("UPDATE products SET name = ?, price = ?, categoryId = ? WHERE id = ?", [name, price, categoryId, id], function (err) {
@@ -182,7 +188,7 @@ app.put('/products/:id', authenticateToken, (req, res) => {
   });
 });
 
-app.delete('/products/:id', authenticateToken, (req, res) => {
+app.delete('/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
   const { id } = req.params;
   db.run("DELETE FROM products WHERE id = ?", [id], function (err) {
     if (err) {
