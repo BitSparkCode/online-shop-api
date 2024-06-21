@@ -1,6 +1,3 @@
-Hier ist die aktualisierte README-Datei mit Informationen zur Authentifizierung, Rollen und dem Standard-Admin-Benutzer:
-
-```markdown
 # Online Shop API
 
 - InMemory SQLite Datenbank
@@ -124,5 +121,4 @@ curl -X POST http://localhost:3000/reset-password -H "Authorization: Bearer <tok
   "username": "user1",
   "newPassword": "newpassword123"
 }'
-```
 ```
