@@ -1,9 +1,128 @@
+Hier ist die aktualisierte README-Datei mit Informationen zur Authentifizierung, Rollen und dem Standard-Admin-Benutzer:
+
+```markdown
 # Online Shop API
 
 - InMemory SQLite Datenbank
 - Node.JS Backend
 
-1. Module installieren `npm install`
-2. Den Server mit `node app.js` starten.
+## Installation
 
-Die API wird dann unter http://localhost:3000/ verfügbar sein und die Swagger-Dokumentation wird unter http://localhost:3000/api-docs zugänglich sein.
+1. Module installieren:
+   ```
+   npm install
+   ```
+2. Den Server starten:
+   ```
+   node app.js
+   ```
+
+Die API wird dann unter [http://localhost:3000/](http://localhost:3000/) verfügbar sein und die Swagger-Dokumentation wird unter [http://localhost:3000/api-docs](http://localhost:3000/api-docs) zugänglich sein.
+
+## Authentifizierung und Rollen
+
+Diese API verwendet JSON Web Tokens (JWT) zur Authentifizierung und Autorisierung. Es gibt zwei Rollen: `admin` und `user`.
+
+### Standard-Admin-Benutzer
+
+Beim Starten des Servers wird ein Standard-Admin-Benutzer erstellt:
+
+- **Benutzername:** `admin`
+- **Passwort:** `admin`
+
+### Endpunkte
+
+#### Registrierung
+
+- **URL:** `/register`
+- **Methode:** `POST`
+- **Beschreibung:** Registriert einen neuen Benutzer mit der Standardrolle `user`.
+- **Body:**
+  ```json
+  {
+    "username": "string",
+    "password": "string",
+    "role": "string"  // optional, default is "user"
+  }
+  ```
+- **Erfolgsantwort:** `201 Created`
+- **Fehlerantwort:** `500 Internal Server Error`
+
+#### Anmeldung
+
+- **URL:** `/login`
+- **Methode:** `POST`
+- **Beschreibung:** Meldet einen Benutzer an und gibt einen JWT zurück.
+- **Body:**
+  ```json
+  {
+    "username": "string",
+    "password": "string"
+  }
+  ```
+- **Erfolgsantwort:** `200 OK` mit Token
+- **Fehlerantwort:** `401 Unauthorized`, `500 Internal Server Error`
+
+#### Passwort zurücksetzen
+
+- **URL:** `/reset-password`
+- **Methode:** `POST`
+- **Beschreibung:** Setzt das Passwort eines Benutzers zurück. Nur authentifizierte Benutzer können diese Aktion ausführen.
+- **Header:** `Authorization: Bearer <token>`
+- **Body:**
+  ```json
+  {
+    "username": "string",
+    "newPassword": "string"
+  }
+  ```
+- **Erfolgsantwort:** `200 OK`
+- **Fehlerantwort:** `500 Internal Server Error`
+
+### Zugriff auf Kategorien und Produkte
+
+#### Kategorien
+
+- **GET /categories**: Zugriff für alle authentifizierten Benutzer
+- **POST /categories**: Nur `admin`
+- **GET /categories/:id**: Zugriff für alle authentifizierten Benutzer
+- **PUT /categories/:id**: Nur `admin`
+- **DELETE /categories/:id**: Nur `admin`
+
+#### Produkte
+
+- **GET /products**: Zugriff für alle authentifizierten Benutzer
+- **POST /products**: Nur `admin`
+- **GET /products/:id**: Zugriff für alle authentifizierten Benutzer
+- **PUT /products/:id**: Nur `admin`
+- **DELETE /products/:id**: Nur `admin`
+
+## Beispielanfragen
+
+### Registrierung
+
+```bash
+curl -X POST http://localhost:3000/register -H "Content-Type: application/json" -d '{
+  "username": "user1",
+  "password": "password123"
+}'
+```
+
+### Anmeldung
+
+```bash
+curl -X POST http://localhost:3000/login -H "Content-Type: application/json" -d '{
+  "username": "admin",
+  "password": "admin"
+}'
+```
+
+### Passwort zurücksetzen
+
+```bash
+curl -X POST http://localhost:3000/reset-password -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{
+  "username": "user1",
+  "newPassword": "newpassword123"
+}'
+```
+```
