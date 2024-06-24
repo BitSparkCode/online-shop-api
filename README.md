@@ -1,6 +1,6 @@
 # Online Shop API
 
-- InMemory SQLite Datenbank
+- Filebasierte SQLite Datenbank
 - Node.JS Backend
 
 ## Installation
