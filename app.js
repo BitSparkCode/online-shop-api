@@ -11,6 +11,7 @@ const port = 3000;
 const secretKey = 'your_secret_key';
 
 app.use(bodyParser.json({ limit: '10mb' })); // Erhöhen Sie die Größenbeschränkung für das Hochladen von Bildern
+app.use(express.static('public'));
 
 let db = new sqlite3.Database('./database.sqlite', (err) => {
   if (err) {
