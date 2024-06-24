@@ -80,17 +80,17 @@ Beim Starten des Servers wird ein Standard-Admin-Benutzer erstellt:
 
 #### Kategorien
 
-- **GET /categories**: Zugriff für alle authentifizierten Benutzer
+- **GET /categories**: Zugriff offen
 - **POST /categories**: Nur `admin`
-- **GET /categories/:id**: Zugriff für alle authentifizierten Benutzer
+- **GET /categories/:id**: Zugriff offen
 - **PUT /categories/:id**: Nur `admin`
 - **DELETE /categories/:id**: Nur `admin`
 
 #### Produkte
 
-- **GET /products**: Zugriff für alle authentifizierten Benutzer
+- **GET /products**: Zugriff offen
 - **POST /products**: Nur `admin`
-- **GET /products/:id**: Zugriff für alle authentifizierten Benutzer
+- **GET /products/:id**: Zugriff offen
 - **PUT /products/:id**: Nur `admin`
 - **DELETE /products/:id**: Nur `admin`
 
