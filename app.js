@@ -10,22 +10,29 @@ const app = express();
 const port = 3000;
 const secretKey = 'your_secret_key';
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' })); // Erhöhen Sie die Größenbeschränkung für das Hochladen von Bildern
 
-let db = new sqlite3.Database(':memory:');
+let db = new sqlite3.Database('./database.sqlite', (err) => {
+  if (err) {
+    console.error('Could not connect to database', err);
+  } else {
+    console.log('Connected to database');
+  }
+});
 
 db.serialize(() => {
-  db.run("CREATE TABLE categories (id INTEGER PRIMARY KEY, name TEXT)");
-  db.run("CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, price REAL, categoryId INTEGER, FOREIGN KEY(categoryId) REFERENCES categories(id))");
-  db.run("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)");
+  db.run("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY, name TEXT)");
+  db.run("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY, name TEXT, price REAL, categoryId INTEGER, image TEXT, FOREIGN KEY(categoryId) REFERENCES categories(id))");
+  db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT)");
   
   const hashedAdminPassword = bcrypt.hashSync('admin', 10);
-  db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ['admin', hashedAdminPassword, 'admin']);
+  db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?) ON CONFLICT(username) DO NOTHING", ['admin', hashedAdminPassword, 'admin']);
 });
 
 // Middleware zur Authentifizierung
 function authenticateToken(req, res, next) {
-  const token = req.headers['authorization'];
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
   if (!token) return res.sendStatus(401);
 
   jwt.verify(token, secretKey, (err, user) => {
@@ -87,8 +94,8 @@ app.post('/reset-password', authenticateToken, (req, res) => {
 // Swagger setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Routes for categories (protected, read-only for users)
-app.get('/categories', authenticateToken, (req, res) => {
+// Routes for categories (public)
+app.get('/categories', (req, res) => {
   db.all("SELECT * FROM categories", (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -109,7 +116,7 @@ app.post('/categories', authenticateToken, authorizeAdmin, (req, res) => {
   });
 });
 
-app.get('/categories/:id', authenticateToken, (req, res) => {
+app.get('/categories/:id', (req, res) => {
   const { id } = req.params;
   db.get("SELECT * FROM categories WHERE id = ?", [id], (err, row) => {
     if (err) {
@@ -143,8 +150,8 @@ app.delete('/categories/:id', authenticateToken, authorizeAdmin, (req, res) => {
   });
 });
 
-// Routes for products (protected, read-only for users)
-app.get('/products', authenticateToken, (req, res) => {
+// Routes for products (public)
+app.get('/products', (req, res) => {
   db.all("SELECT * FROM products", (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -155,17 +162,17 @@ app.get('/products', authenticateToken, (req, res) => {
 });
 
 app.post('/products', authenticateToken, authorizeAdmin, (req, res) => {
-  const { name, price, categoryId } = req.body;
-  db.run("INSERT INTO products (name, price, categoryId) VALUES (?, ?, ?)", [name, price, categoryId], function (err) {
+  const { name, price, categoryId, image } = req.body;
+  db.run("INSERT INTO products (name, price, categoryId, image) VALUES (?, ?, ?, ?)", [name, price, categoryId, image], function (err) {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
     }
-    res.status(201).json({ id: this.lastID, name, price, categoryId });
+    res.status(201).json({ id: this.lastID, name, price, categoryId, image });
   });
 });
 
-app.get('/products/:id', authenticateToken, (req, res) => {
+app.get('/products/:id', (req, res) => {
   const { id } = req.params;
   db.get("SELECT * FROM products WHERE id = ?", [id], (err, row) => {
     if (err) {
@@ -178,13 +185,13 @@ app.get('/products/:id', authenticateToken, (req, res) => {
 
 app.put('/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
   const { id } = req.params;
-  const { name, price, categoryId } = req.body;
-  db.run("UPDATE products SET name = ?, price = ?, categoryId = ? WHERE id = ?", [name, price, categoryId, id], function (err) {
+  const { name, price, categoryId, image } = req.body;
+  db.run("UPDATE products SET name = ?, price = ?, categoryId = ?, image = ? WHERE id = ?", [name, price, categoryId, image, id], function (err) {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
     }
-    res.json({ id, name, price, categoryId });
+    res.json({ id, name, price, categoryId, image });
   });
 });
 
